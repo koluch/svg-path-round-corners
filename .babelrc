@@ -1,0 +1,8 @@
+{
+  "presets": ["es2015"],
+  "plugins": [
+    "tcomb",
+    "transform-flow-strip-types",
+    "transform-object-rest-spread"
+  ]
+}
