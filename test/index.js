@@ -80,13 +80,28 @@ test('round corners should do nothing when there are no double lines', (t) => {
     t.end()
 })
 
-test('round corners on single corner', (t) => {
-    t.deepEquals(serialize(roundCorners(parse('M0 0L100 0 100 100'), 30)), 'M0 0L70 0Q100 0 100 30L100 100')
-    t.deepEquals(serialize(roundCorners(parse('M50 50L150 50 150 150'), 30)), 'M50 50L120 50Q150 50 150 80L150 150')
+test('round single corner', (t) => {
+    t.deepEquals(serialize(roundCorners(parse('M0 0L100 0 100 100'), 30)), 'M0 0l70 0q30 0 30 30l0 70')
+    t.deepEquals(serialize(roundCorners(parse('M50 30L150 30 150 130'), 30)), 'M50 30l70 0q30 0 30 30l0 70')
     t.end()
 })
-// test('round corners on single corner with relative coordinates', (t) => {
-//     t.deepEquals(serialize(roundCorners(parse('M50 50l100 0 0 100'), 30)), 'M50 50l70 0q100 0 100 30l100 100')
+
+test('round single corner, use relative coordinates', (t) => {
+    t.deepEquals(serialize(roundCorners(parse('M50 30l100 0 0 100'), 30)), 'M50 30l70 0q30 0 30 30l0 70')
+    t.end()
+})
+
+test('two corners', (t) => {
+    t.deepEquals(serialize(roundCorners(parse('M50 50l 100 0 0 100 -100 0'), 30)), 'M50 50l70 0q30 0 30 30l0 40q0 30-30 30l-70 0')
+    t.end()
+})
+
+test('three corners', (t) => {
+    t.deepEquals(serialize(roundCorners(parse('M50 50l 100 0 0 100 -100 0 0-50'), 30)), 'M50 50l70 0q30 0 30 30l0 40q0 30-30 30l-40 0q-30 0-30-30l0-20')
+    t.end()
+})
+
+// test('combine lines with Z command', (t) => {
+//     t.deepEquals(serialize(roundCorners(parse('M50 50l 100 0 0 100 -100 0Z'), 30)), 'M80 50l40 0q30 0 30 30l0 40q0 30-30 30l-40 0q-30 0-30 -30l0 -40q0 -30 30 -30')
 //     t.end()
 // })
-//

@@ -96,35 +96,59 @@ export const getSubPaths = (d: TData): TData[] => {
 }
 
 export const roundCorners = (d: TData, radius: number = 0): TData => {
-    const subpathes = getSubPaths(d)
+    const subPaths = getSubPaths(d)
     let point = {x: 0, y: 0}
 
-    const roundedSubPaths = subpathes.map((subpath: TData) => {
-
+    const roundedSubPaths = subPaths.map((subPath: TData) => {
         // Move current point to the begining of a new path
-        const firstCommand = subpath[0]
+        const firstCommand = subPath[0]
         if (firstCommand.command === 'M') {
             point = {x: firstCommand.x, y: firstCommand.y}
         }
         else if (firstCommand.command === 'm') {
             point = {x: point.x + firstCommand.dx, y: point.y + firstCommand.dy}
         }
+        else {
+            throw new Error(`First command in sub-path should be "M" or "m", not "${firstCommand.command}"`)
+        }
 
         const result = [firstCommand]
 
-        for (let i = 1; i < subpath.length; i++) {
-            const command = subpath[i]
-            if (i < subpath.length - 1) {
-                const nextCommand = subpath[i + 1]
-                if (command.command === 'L' && nextCommand.command === 'L') {
+        for (let i = 1; i < subPath.length; i++) {
+            const command = subPath[i]
+            if (i < subPath.length - 1) {
+                const nextCommand = subPath[i + 1]
+                if ((command.command === 'L' || command.command === 'l')
+                    && (nextCommand.command === 'L' || nextCommand.command === 'l')) {
+
                     const p1 = point
-                    const p2 = {x: command.x, y: command.y}
-                    const p3 = {x: nextCommand.x, y: nextCommand.y}
+                    let p2 = null
+                    let p3 = null
+                    if (command.command === 'L') {
+                        p2 = {x: command.x, y: command.y}
+                    }
+                    else {
+                        p2 = {x: point.x + command.dx, y: point.y + command.dy}
+                    }
+
+                    if (nextCommand.command === 'L') {
+                        p3 = {x: nextCommand.x, y: nextCommand.y}
+                    }
+                    else {
+                        p3 = {x: p2.x + nextCommand.dx, y: p2.y + nextCommand.dy}
+                    }
+
+                    if (!p1 || !p2 || !p3) {
+                        throw new Error('Variables weren\'t initialized (some command combination cases weren\'t' +
+                         ' handled, this is an internal bug for sure)')
+                    }
+
                     const [q1, q2] = makeBezierPoints(p1, p2, p3, radius)
-                    result.push({command: 'L', x: q1.x, y: q1.y})
-                    result.push({command: 'Q', x1: p2.x, y1: p2.y, x: q2.x, y: q2.y})
-                    result.push({command: 'L', x: p3.x, y: p3.y})
-                    i++ // next command is already handled - skip it
+                    result.push({command: 'l', dx: q1.x - p1.x, dy: q1.y - p1.y})
+                    result.push({command: 'q', dx1: (p2.x - q1.x), dy1: (p2.y - q1.y), dx: (q2.x - q1.x), dy: (q2.y - q1.y)})
+                    point = {x: p3.x, y: p3.y}
+                    // need to put new line instead of next command
+                    subPath[i + 1] = {command: 'l', dx: (p3.x - q2.x), dy: (p3.y - q2.y)}
                 }
                 else {
                     result.push(command)
@@ -139,47 +163,6 @@ export const roundCorners = (d: TData, radius: number = 0): TData => {
     })
 
     return [].concat(...roundedSubPaths)
-
-    /*
-
-    const point = {x: 0, y: 0}
-    const result = []
-    for (let i = 0; i < d.length - 1; i++) {
-        const command = d[i]
-        const nextCommand = d[i + 1]
-        let nextPoint = null
-
-        if (command.command === 'M' || command.command === 'L' || command.command === 'C'
-            || command.command === 'S' || command.command === 'Q' || command.command === 'T'
-            || command.command === 'A') {
-            nextPoint = {x: command.x, y: command.y}
-        }
-        else if (command.command === 'H') {
-            nextPoint = {x: command.x, y: point.y}
-        }
-        else if (command.command === 'V') {
-            nextPoint = {x: point.x, y: command.y}
-        }
-        else if (command.command === 'Z') {
-            nextPoint = {x: point.x, y: command.y}
-        }
-
-
-        if (command.command === 'L') {
-
-        }
-        if (command.command === 'L') {
-            // const p1 = {x: command.x1, y: command.y1}
-            // const p2 = {x: command.x2, y: command.y2}
-            // const p3 = {x: nextCommand.x1, y: command.y1}
-            // makeBezierPoints({x: command.p1});
-        }
-        else if (command.command === 'M') {
-            x = command.x
-            y = command.y
-        }
-    }
-    return result*/
 }
 
 // const data = buildData(path, radius / 2);
