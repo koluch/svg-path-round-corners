@@ -1,12 +1,12 @@
 // @flow
 
-import type {TData, TDataCommand} from './types.js'
+import type {TData, TCommand} from './types.js'
 
 const formatArguments = (args: number[]): string => {
     return args.map((x, i) => x < 0 || i === 0 ? `${x}` : ` ${x}`).join('')
 }
 
-const getArgumentsList = (c: TDataCommand): number[] => {
+const getArgumentsList = (c: TCommand): number[] => {
     switch (c.command) {
         case 'M': return [c.x, c.y]
         case 'm': return [c.dx, c.dy]

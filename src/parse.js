@@ -1,77 +1,7 @@
 // @flow
 /* eslint-disable no-magic-numbers */
 
-// // Function for scaling vectors, keeping it's origin coordinates
-// function scaleVector(p1, p2, factor) {
-//     const { x: x1, y: y1 } = p1;
-//     const { x: x2, y: y2 } = p2;
-//     const x = x2 - x1;
-//     const y = y2 - y1;
-//     const dx = x - (x * factor);
-//     const dy = y - (y * factor);
-//
-//     return {
-//         x: x2 - dx,
-//         y: y2 - dy,
-//     };
-// }
-//
-// function makeBezierPoints(p1, p2, p3, radius) {
-//     // Angle between lines
-//     const { PI, abs, sqrt, pow, acos, tan } = Math;
-//     const { x: x1, y: y1 } = p1;
-//     const { x: x2, y: y2 } = p2;
-//     const { x: x3, y: y3 } = p3;
-//     const a = sqrt(pow(abs(x2 - x1), 2) + pow(abs(y2 - y1), 2));
-//     const b = sqrt(pow(abs(x3 - x2), 2) + pow(abs(y3 - y2), 2));
-//     const c = sqrt(pow(abs(x3 - x1), 2) + pow(abs(y3 - y1), 2));
-//     const angle = acos((pow(a, 2) + (pow(b, 2) - pow(c, 2))) / (2 * a * b)); // cos theoreme
-//
-//     // Angle between any side and line from circle center to angle vertex
-//     const angle2 = (PI / 2) - (angle / 2);
-//
-//     // Distance between angle vertex and point where circle touches any side
-//     const side = radius * tan(angle2);
-//
-//     // How much new sides becomes shorter
-//     const aCoef = (a - side) / a;
-//     const bCoef = (b - side) / b;
-//
-//     return [
-//         scaleVector(p1, p2, aCoef),
-//         scaleVector(p3, p2, bCoef),
-//     ];
-// }
-//
-// function buildData(path, radius) {
-//     const result = [];
-//
-//     for (let i = 0; i < path.length; i += 1) {
-//         const p1 = path[i % path.length];
-//         const p2 = path[(i + 1) % path.length];
-//         const p3 = path[(i + 2) % path.length];
-//
-//         const [c1, c2] = makeBezierPoints(p1, p2, p3, radius);
-//
-//         if (i === 0) {
-//             result.push(
-//                 ['M', c1.x, c1.y]
-//             );
-//         }
-//
-//         result.push(
-//             ['L', c1.x, c1.y],
-//             ['Q', p2.x, p2.y, c2.x, c2.y], // bottom-left radius
-//         );
-//     }
-//
-//     return result;
-// }
-
-// const data = buildData(path, radius / 2);
-
-
-import type {TData, TDataCommand} from './types'
+import type {TData, TCommand} from './types'
 
 const ERROR_MAX_STRING_LENGTH = 15
 const error = (msg: string, string: string, i: number) => {
@@ -101,7 +31,7 @@ const parseArguments = (string, i): [number[], number] => {
         //todo: parse \n too
         if (/\s/.test(char) || char === ',') {
             if (number !== '') {
-                result.push(makeNumber(number, string, nextI));
+                result.push(makeNumber(number, string, nextI))
                 number = ''
             }
         }
@@ -165,9 +95,9 @@ const parseArgumentsGeneral = (string: string, i: number, perCommand: number): [
 }
 
 
-const parseMove = (string, i, relative = false): [TDataCommand[], number] => {
+const parseMove = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 2)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({command: 'm', dx: argGroups[i][0], dy: argGroups[i][1]})
@@ -179,14 +109,14 @@ const parseMove = (string, i, relative = false): [TDataCommand[], number] => {
     return [commands, nextI]
 }
 
-const parseClose = (string, i, relative = false): [TDataCommand[], number] => {
+const parseClose = (string, i, relative = false): [TCommand[], number] => {
     const [_, nextI] = parseArgumentsGeneral(string, i, 0)
     return [[relative ? {command: 'z'} : {command: 'Z'}], nextI]
 }
 
-const parseLine = (string, i, relative = false): [TDataCommand[], number] => {
+const parseLine = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 2)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({command: 'l', dx: argGroups[i][0], dy: argGroups[i][1]})
@@ -198,9 +128,9 @@ const parseLine = (string, i, relative = false): [TDataCommand[], number] => {
     return [commands, nextI]
 }
 
-const parseHorizontal = (string, i, relative = false): [TDataCommand[], number] => {
+const parseHorizontal = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 1)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({command: 'h', dx: argGroups[i][0]})
@@ -212,9 +142,9 @@ const parseHorizontal = (string, i, relative = false): [TDataCommand[], number] 
     return [commands, nextI]
 }
 
-const parseVertical = (string, i, relative = false): [TDataCommand[], number] => {
+const parseVertical = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 1)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({command: 'v', dy: argGroups[i][0]})
@@ -226,9 +156,9 @@ const parseVertical = (string, i, relative = false): [TDataCommand[], number] =>
     return [commands, nextI]
 }
 
-const parseCurve = (string, i, relative = false): [TDataCommand[], number] => {
+const parseCurve = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 6)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
@@ -256,9 +186,9 @@ const parseCurve = (string, i, relative = false): [TDataCommand[], number] => {
     return [commands, nextI]
 }
 
-const parseShortCurve = (string, i, relative = false): [TDataCommand[], number] => {
+const parseShortCurve = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 4)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
@@ -282,9 +212,9 @@ const parseShortCurve = (string, i, relative = false): [TDataCommand[], number] 
     return [commands, nextI]
 }
 
-const parseQuadCurve = (string, i, relative = false): [TDataCommand[], number] => {
+const parseQuadCurve = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 4)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
@@ -308,9 +238,9 @@ const parseQuadCurve = (string, i, relative = false): [TDataCommand[], number] =
     return [commands, nextI]
 }
 
-const parseShortQuadCurve = (string, i, relative = false): [TDataCommand[], number] => {
+const parseShortQuadCurve = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 2)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
@@ -330,9 +260,9 @@ const parseShortQuadCurve = (string, i, relative = false): [TDataCommand[], numb
     return [commands, nextI]
 }
 
-const parseArc = (string, i, relative = false): [TDataCommand[], number] => {
+const parseArc = (string, i, relative = false): [TCommand[], number] => {
     const [argGroups, nextI] = parseArgumentsGeneral(string, i, 7)
-    const commands: TDataCommand[] = []
+    const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
@@ -391,7 +321,7 @@ export const parseNextCommand = (string: string, i: number) => {
 }
 
 export const parse = (string: string): TData => {
-    const result = []
+    const result: TData = []
     let i = 0
     while (i < string.length) {
         const [commands, nextI] = parseNextCommand(string, i)

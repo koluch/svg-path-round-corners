@@ -1,6 +1,8 @@
 // @flow
 import {parse as importedParse} from './parse'
-import type {TData, TDataCommand} from './types'
+import type {TData, TCommand} from './types'
+
+import {getSubPaths} from './utils'
 
 type TPoint = {x: number, y: number}
 
@@ -71,61 +73,44 @@ const buildData = (path, radius) => {
     return result
 }
 
-export const getSubPaths = (d: TData): TData[] => {
-    if (d.length === 0) {
-        return []
-    }
-    else if (d[0].command !== 'M' && d[0].command !== 'm') {
-        throw new Error(`Path must start with an "M" or "m" command, not "${d[0].command}" `)
-    }
-
-    const result = []
-    let nextSubPath = []
-    d.forEach((command) => {
-        if (command === 'M' || command.command === 'm') {
-            if (nextSubPath.length > 0) {
-                result.push(nextSubPath)
-            }
-            nextSubPath = []
-        }
-        nextSubPath.push(command)
-    })
-    result.push(nextSubPath)
-
-    return result
-}
-
 export const roundCorners = (d: TData, radius: number = 0): TData => {
     const subPaths = getSubPaths(d)
+
     let point = {x: 0, y: 0}
 
     const roundedSubPaths = subPaths.map((subPath: TData) => {
-        // Move current point to the begining of a new path
+        // Calc begin of a current sub path
         const firstCommand = subPath[0]
+        let subPathBegin = null
         if (firstCommand.command === 'M') {
-            point = {x: firstCommand.x, y: firstCommand.y}
+            subPathBegin = {x: firstCommand.x, y: firstCommand.y}
         }
         else if (firstCommand.command === 'm') {
-            point = {x: point.x + firstCommand.dx, y: point.y + firstCommand.dy}
+            subPathBegin = {x: point.x + firstCommand.dx, y: point.y + firstCommand.dy}
         }
         else {
             throw new Error(`First command in sub-path should be "M" or "m", not "${firstCommand.command}"`)
         }
+        // Move current point to the beginning of a new path
+        point = subPathBegin
 
         const result = [firstCommand]
 
         for (let i = 1; i < subPath.length; i++) {
             const command = subPath[i]
+            const nextCommandI = (i + 1) % subPath.length
             if (i < subPath.length - 1) {
-                const nextCommand = subPath[i + 1]
+                const nextCommand = subPath[nextCommandI]
                 if ((command.command === 'L' || command.command === 'l')
-                    && (nextCommand.command === 'L' || nextCommand.command === 'l')) {
-
+                    && (nextCommand.command === 'L' || nextCommand.command === 'l' || nextCommand.command === 'Z' || nextCommand.command === 'z')) {
                     const p1 = point
                     let p2 = null
                     let p3 = null
                     if (command.command === 'L') {
                         p2 = {x: command.x, y: command.y}
+                    }
+                    else if (command.command === 'Z' || command.command === 'z') {
+                        p2 = subPathBegin
                     }
                     else {
                         p2 = {x: point.x + command.dx, y: point.y + command.dy}
@@ -134,21 +119,30 @@ export const roundCorners = (d: TData, radius: number = 0): TData => {
                     if (nextCommand.command === 'L') {
                         p3 = {x: nextCommand.x, y: nextCommand.y}
                     }
+                    else if (nextCommand.command === 'Z' || nextCommand.command === 'z') {
+                        p3 = subPathBegin
+                    }
                     else {
                         p3 = {x: p2.x + nextCommand.dx, y: p2.y + nextCommand.dy}
                     }
 
                     if (!p1 || !p2 || !p3) {
-                        throw new Error('Variables weren\'t initialized (some command combination cases weren\'t' +
-                         ' handled, this is an internal bug for sure)')
+                        throw new Error('Variables weren\'t initialized (some command combination cases weren\'t'
+                            + ' handled,https://lleo.me/dnevnik/2011/05/17.html this is an internal bug for sure)')
                     }
 
                     const [q1, q2] = makeBezierPoints(p1, p2, p3, radius)
                     result.push({command: 'l', dx: q1.x - p1.x, dy: q1.y - p1.y})
-                    result.push({command: 'q', dx1: (p2.x - q1.x), dy1: (p2.y - q1.y), dx: (q2.x - q1.x), dy: (q2.y - q1.y)})
+                    result.push({
+                        command: 'q',
+                        dx1: (p2.x - q1.x),
+                        dy1: (p2.y - q1.y),
+                        dx: (q2.x - q1.x),
+                        dy: (q2.y - q1.y),
+                    })
                     point = {x: p3.x, y: p3.y}
                     // need to put new line instead of next command
-                    subPath[i + 1] = {command: 'l', dx: (p3.x - q2.x), dy: (p3.y - q2.y)}
+                    subPath[nextCommandI] = {command: 'l', dx: (p3.x - q2.x), dy: (p3.y - q2.y)}
                 }
                 else {
                     result.push(command)
@@ -164,5 +158,3 @@ export const roundCorners = (d: TData, radius: number = 0): TData => {
 
     return [].concat(...roundedSubPaths)
 }
-
-// const data = buildData(path, radius / 2);
