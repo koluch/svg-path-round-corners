@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "build": "babel src -d lib",
-        "test": "babel-tape-runner test/**/*.js | tap-spec"
+        "test": "flow check && babel-tape-runner test/**/*.js | tap-spec"
     },
     "keywords": [
         "javascript",
