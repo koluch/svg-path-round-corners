@@ -321,7 +321,7 @@ export const parseNextCommand = (string: string, i: number) => {
 }
 
 export const parse = (string: string): TData => {
-    const result: TData = []
+    const result = []
     let i = 0
     while (i < string.length) {
         const [commands, nextI] = parseNextCommand(string, i)

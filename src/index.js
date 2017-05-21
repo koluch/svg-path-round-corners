@@ -1,10 +1,7 @@
 // @flow
-import {parse as importedParse} from './parse'
-import type {TData, TCommand} from './types'
+import type {TSubPath, TData, TAbsoluteData, TPoint} from './types'
 
-import {getSubPaths} from './utils'
-
-type TPoint = {x: number, y: number}
+import {applyCommand, getSubPaths, isSubPathClosed, makeDataAbsolute} from './utils'
 
 // Function for scaling vectors, keeping it's origin coordinates
 const scaleVector = (p1: TPoint, p2: TPoint, factor: number): TPoint => {
@@ -48,113 +45,94 @@ const makeBezierPoints = (p1: TPoint, p2: TPoint, p3: TPoint, radius: number) =>
     ]
 }
 
-const buildData = (path, radius) => {
-    const result = []
-
-    for (let i = 0; i < path.length; i += 1) {
-        const p1 = path[i % path.length]
-        const p2 = path[(i + 1) % path.length]
-        const p3 = path[(i + 2) % path.length]
-
-        const [c1, c2] = makeBezierPoints(p1, p2, p3, radius)
-
-        if (i === 0) {
-            result.push(
-                ['M', c1.x, c1.y]
-            )
-        }
-
-        result.push(
-            ['L', c1.x, c1.y],
-            ['Q', p2.x, p2.y, c2.x, c2.y], // bottom-left radius
-        )
+export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
+    if (subpath.length === 0) {
+        throw new Error('Sub-path could not be empty (it should contain an M command at least')
     }
 
-    return result
-}
+    // It's impossible to draw a corner if there are less then a 2 command
+    if (subpath.length < 2) {
+        return subpath
+    }
 
-export const roundCorners = (d: TData, radius: number = 0): TData => {
-    const subPaths = getSubPaths(d)
+    // First command should always be an 'M' command
+    const mCommand = subpath[0]
+    if (mCommand.command !== 'M') {
+        throw new Error(`Wrong sub-path data, first command should always by an 'M' command, not "${mCommand.command}"`)
+    }
 
-    let point = {x: 0, y: 0}
+    let begin = applyCommand({x: 0, y: 0}, {x: 0, y: 0}, mCommand)
+    subpath = subpath.slice(1)
 
-    const roundedSubPaths = subPaths.map((subPath: TData) => {
-        // Calc begin of a current sub path
-        const firstCommand = subPath[0]
-        let subPathBegin = null
-        if (firstCommand.command === 'M') {
-            subPathBegin = {x: firstCommand.x, y: firstCommand.y}
+    const isClosed = isSubPathClosed(begin, subpath)
+
+    const result = []
+    let position = begin
+    for (let i = 0; i < subpath.length; i++) {
+        const command1 = subpath[i]
+        const command2 = subpath[(i + 1) % subpath.length]
+        // const command3 = subpath[(i + 2) % subpath.length]
+        const isLastCommand = i === subpath.length - 1
+
+        const isCorner = (command1.command === 'L' || command1.command === 'Z')
+                      && (command2.command === 'L' || command2.command === 'Z')
+
+        if (!isCorner) {
+            result.push(command1)
         }
-        else if (firstCommand.command === 'm') {
-            subPathBegin = {x: point.x + firstCommand.dx, y: point.y + firstCommand.dy}
+        else if (isLastCommand && !isClosed) {
+            result.push(command1)
         }
         else {
-            throw new Error(`First command in sub-path should be "M" or "m", not "${firstCommand.command}"`)
-        }
-        // Move current point to the beginning of a new path
-        point = subPathBegin
+            const p1 = position
+            let p2 = null
+            let p3 = null
 
-        const result = [firstCommand]
-
-        for (let i = 1; i < subPath.length; i++) {
-            const command = subPath[i]
-            const nextCommandI = (i + 1) % subPath.length
-            if (i < subPath.length - 1) {
-                const nextCommand = subPath[nextCommandI]
-                if ((command.command === 'L' || command.command === 'l')
-                    && (nextCommand.command === 'L' || nextCommand.command === 'l' || nextCommand.command === 'Z' || nextCommand.command === 'z')) {
-                    const p1 = point
-                    let p2 = null
-                    let p3 = null
-                    if (command.command === 'L') {
-                        p2 = {x: command.x, y: command.y}
-                    }
-                    else if (command.command === 'Z' || command.command === 'z') {
-                        p2 = subPathBegin
-                    }
-                    else {
-                        p2 = {x: point.x + command.dx, y: point.y + command.dy}
-                    }
-
-                    if (nextCommand.command === 'L') {
-                        p3 = {x: nextCommand.x, y: nextCommand.y}
-                    }
-                    else if (nextCommand.command === 'Z' || nextCommand.command === 'z') {
-                        p3 = subPathBegin
-                    }
-                    else {
-                        p3 = {x: p2.x + nextCommand.dx, y: p2.y + nextCommand.dy}
-                    }
-
-                    if (!p1 || !p2 || !p3) {
-                        throw new Error('Variables weren\'t initialized (some command combination cases weren\'t'
-                            + ' handled,https://lleo.me/dnevnik/2011/05/17.html this is an internal bug for sure)')
-                    }
-
-                    const [q1, q2] = makeBezierPoints(p1, p2, p3, radius)
-                    result.push({command: 'l', dx: q1.x - p1.x, dy: q1.y - p1.y})
-                    result.push({
-                        command: 'q',
-                        dx1: (p2.x - q1.x),
-                        dy1: (p2.y - q1.y),
-                        dx: (q2.x - q1.x),
-                        dy: (q2.y - q1.y),
-                    })
-                    point = {x: p3.x, y: p3.y}
-                    // need to put new line instead of next command
-                    subPath[nextCommandI] = {command: 'l', dx: (p3.x - q2.x), dy: (p3.y - q2.y)}
-                }
-                else {
-                    result.push(command)
-                }
+            if (command1.command === 'L') {
+                p2 = {x: command1.x, y: command1.y}
             }
-            else {
-                result.push(command)
+            else if (command1.command === 'Z') {
+                p2 = begin
+            }
+
+            if (command2.command === 'L') {
+                p3 = {x: command2.x, y: command2.y}
+            }
+            else if (command2.command === 'Z' || command2.command === 'z') {
+                p3 = begin
+            }
+
+            if (!p1 || !p2 || !p3) {
+                throw new Error('Variables weren\'t initialized (some command combination cases weren\'t'
+                    + ' handled, this is an internal bug for sure)')
+            }
+
+            const [q1, q2] = makeBezierPoints(p1, p2, p3, radius)
+            result.push({command: 'L', x: q1.x, y: q1.y})
+            result.push({
+                command: 'Q',
+                x1: p2.x,
+                y1: p2.y,
+                x: q2.x,
+                y: q2.y,
+            })
+
+            if (isLastCommand) {
+                begin = q2
             }
         }
+        position = applyCommand(position, begin, command1)
+    }
 
-        return result
-    })
+    return [{command: 'M', x: begin.x, y: begin.y}].concat(result)
+}
+
+export const roundCorners = (d: TData, radius: number = 0): TAbsoluteData => {
+
+    const absD = makeDataAbsolute(d)
+    const subPaths = getSubPaths(absD)
+
+    const roundedSubPaths = subPaths.map((subPath: TSubPath) => roundSubPath(subPath, radius))
 
     return [].concat(...roundedSubPaths)
 }

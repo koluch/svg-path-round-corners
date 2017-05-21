@@ -1,6 +1,6 @@
 // @flow
 
-import type {TData, TCommand} from './types.js'
+import type {TCommand, TData} from './types.js'
 
 const formatArguments = (args: number[]): string => {
     return args.map((x, i) => x < 0 || i === 0 ? `${x}` : ` ${x}`).join('')

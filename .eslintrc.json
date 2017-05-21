@@ -110,7 +110,6 @@
     "no-new-wrappers": "error",
     "no-octal": "error",
     "no-octal-escape": "error",
-    "no-param-reassign": "error",
     "no-proto": "error",
     "no-redeclare": "error",
     "no-return-assign": "error",
@@ -200,11 +199,12 @@
 
     "no-duplicate-imports": "warn",
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "max-params": "warn",
+    "max-params": ["warn", 4],
     "max-statements-per-line": "warn",
     "max-depth": "warn",
     "max-len": ["warn", 120],
 
+    "no-param-reassign": "off",
     "no-plusplus": "off",
     "wrap-regex": "off",
     "complexity": "off",
