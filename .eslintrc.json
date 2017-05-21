@@ -201,8 +201,8 @@
     "max-params": ["warn", 4],
     "max-statements-per-line": "warn",
     "max-depth": "warn",
-    "max-len": ["warn", 120],
 
+    "max-len": "off",
     "no-use-before-define": "off",
     "no-param-reassign": "off",
     "no-plusplus": "off",
