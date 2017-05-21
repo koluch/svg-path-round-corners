@@ -135,7 +135,6 @@
     "no-shadow-restricted-names": "error",
     "no-undef-init": "error",
     "no-undefined": "error",
-    "no-use-before-define": "error",
     "callback-return": "error",
     "global-require": "error",
     "handle-callback-err": "error",
@@ -204,6 +203,7 @@
     "max-depth": "warn",
     "max-len": ["warn", 120],
 
+    "no-use-before-define": "off",
     "no-param-reassign": "off",
     "no-plusplus": "off",
     "wrap-regex": "off",

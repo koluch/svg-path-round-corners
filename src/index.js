@@ -1,7 +1,7 @@
 // @flow
 import type {TSubPath, TData, TAbsoluteData, TPoint} from './types'
 
-import {applyCommand, getSubPaths, isSubPathClosed, makeDataAbsolute} from './utils'
+import {applyCommand, normalizeData, getSubPaths, isSubPathClosed, makeDataAbsolute, pointEquals} from './utils'
 
 // Function for scaling vectors, keeping it's origin coordinates
 const scaleVector = (p1: TPoint, p2: TPoint, factor: number): TPoint => {
@@ -98,7 +98,7 @@ export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
             if (command2.c === 'L') {
                 p3 = {x: command2.x, y: command2.y}
             }
-            else if (command2.c === 'Z' || command2.c === 'z') {
+            else if (command2.c === 'Z') {
                 p3 = begin
             }
 
@@ -107,18 +107,24 @@ export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
                     + ' handled, this is an internal bug for sure)')
             }
 
-            const [q1, q2] = makeBezierPoints(p1, p2, p3, radius)
-            result.push({c: 'L', x: q1.x, y: q1.y})
-            result.push({
-                c: 'Q',
-                x1: p2.x,
-                y1: p2.y,
-                x: q2.x,
-                y: q2.y,
-            })
+            // Point should not be equals, because makeBezierPoints fails on zero-length triangle sides
+            if (pointEquals(p1, p2) || pointEquals(p2, p3) || pointEquals(p1, p3)) {
+                result.push(command1)
+            }
+            else {
+                const [q1, q2] = makeBezierPoints(p1, p2, p3, radius)
 
-            if (isLastCommand) {
-                begin = q2
+                result.push({c: 'L', x: q1.x, y: q1.y})
+                result.push({
+                    c: 'Q',
+                    x1: p2.x,
+                    y1: p2.y,
+                    x: q2.x,
+                    y: q2.y,
+                })
+                if (isLastCommand) {
+                    begin = q2
+                }
             }
         }
         position = applyCommand(position, begin, command1)
@@ -128,7 +134,7 @@ export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
 }
 
 export const roundCorners = (d: TData, radius: number = 0): TAbsoluteData => {
-    const absD = makeDataAbsolute(d)
+    const absD = normalizeData(d)
     const subPaths = getSubPaths(absD)
 
     const roundedSubPaths = subPaths.map((subPath: TSubPath) => roundSubPath(subPath, radius))

@@ -79,15 +79,41 @@ export const makeDataAbsolute = (d: TData): TAbsoluteData => {
     const result = []
     for (let i = 0; i < d.length; i++) {
         const command = d[i]
-        const relativeCommand = makeCommandAbsolute(position, command)
-        result.push(relativeCommand)
-        position = applyCommand(position, begin, relativeCommand)
+        const absoluteCommand = makeCommandAbsolute(position, command)
+        result.push(absoluteCommand)
+        position = applyCommand(position, begin, absoluteCommand)
 
         if (command.c === 'M') {
             begin = command
         }
         else if (command.c === 'm') {
-            begin = applyCommand(position, begin, relativeCommand)
+            begin = applyCommand(position, begin, absoluteCommand)
+        }
+    }
+    return result
+}
+
+export const normalizeData = (d: TData): TAbsoluteData => {
+    let begin = {x: 0, y: 0}
+    let position = {x: 0, y: 0}
+    const result = []
+    for (let i = 0; i < d.length; i++) {
+        const command = d[i]
+        const absoluteCommand = makeCommandAbsolute(position, command)
+        const newPosition = applyCommand(position, begin, absoluteCommand)
+
+        // Filter line commands which doesn't change position
+        const isLineCommand = absoluteCommand.c === 'L' || absoluteCommand.c === 'Z'
+        if (!isLineCommand || !pointEquals(newPosition, position)) {
+            result.push(absoluteCommand)
+            position = newPosition
+        }
+
+        if (absoluteCommand.c === 'M') {
+            begin = absoluteCommand
+        }
+        else if (absoluteCommand.c === 'm') {
+            begin = applyCommand(position, begin, absoluteCommand)
         }
     }
     return result
@@ -141,3 +167,5 @@ export const isSubPathClosed = (begin: TPoint, d: TSubPath): boolean => {
     }
     return lastCommand.x === begin.x && lastCommand.y === begin.y
 }
+
+export const pointEquals = (p1: TPoint, p2: TPoint) => p1.x === p2.x && p1.y === p2.y
