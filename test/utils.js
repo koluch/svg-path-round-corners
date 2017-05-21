@@ -6,14 +6,14 @@ import {getSubPaths, makeDataRelative, makeDataAbsolute, makeCommandRelative, is
 import type {TAbsoluteData} from '../src/types'
 
 test('applyRelativeCommand: make relative command, which is already relative', (t) => {
-    t.deepEquals(makeCommandRelative({x: 30, y: 40}, {command: 'l', dx: 50, dy: 100}), {command: 'l', dx: 50, dy: 100})
+    t.deepEquals(makeCommandRelative({x: 30, y: 40}, {c: 'l', dx: 50, dy: 100}), {c: 'l', dx: 50, dy: 100})
     t.end()
 })
 
 test('applyRelativeCommand: make relative line commands', (t) => {
-    t.deepEquals(makeCommandRelative({x: 0, y: 0}, {command: 'L', x: 100, y: 0}), {command: 'l', dx: 100, dy: 0})
-    t.deepEquals(makeCommandRelative({x: 100, y: 0}, {command: 'L', x: 100, y: 100}), {command: 'l', dx: 0, dy: 100})
-    t.deepEquals(makeCommandRelative({x: 100, y: 100}, {command: 'L', x: 0, y: 100}), {command: 'l', dx: -100, dy: 0})
+    t.deepEquals(makeCommandRelative({x: 0, y: 0}, {c: 'L', x: 100, y: 0}), {c: 'l', dx: 100, dy: 0})
+    t.deepEquals(makeCommandRelative({x: 100, y: 0}, {c: 'L', x: 100, y: 100}), {c: 'l', dx: 0, dy: 100})
+    t.deepEquals(makeCommandRelative({x: 100, y: 100}, {c: 'L', x: 0, y: 100}), {c: 'l', dx: -100, dy: 0})
     t.end()
 })
 
@@ -89,37 +89,37 @@ test('getSubPaths: should fail when first command is not Move command', (t) => {
 })
 
 test('getSubPaths: parse data with single subpath', (t) => {
-    t.deepEquals(subPathPrep('M 48 0'), [[{command: 'M', x: 48, y: 0}]])
+    t.deepEquals(subPathPrep('M 48 0'), [[{c: 'M', x: 48, y: 0}]])
     t.end()
 })
 
 test('getSubPaths: split path to subpathes by M command', (t) => {
     t.deepEquals(subPathPrep('M10 315 78 35'), [
-        [{command: 'M', x: 10, y: 315}],
-        [{command: 'M', x: 78, y: 35}],
+        [{c: 'M', x: 10, y: 315}],
+        [{c: 'M', x: 78, y: 35}],
     ])
     t.deepEquals(subPathPrep('M10 315 L 31 48 M78 35'), [
-        [{command: 'M', x: 10, y: 315}, {command: 'L', x: 31, y: 48}],
-        [{command: 'M', x: 78, y: 35}],
+        [{c: 'M', x: 10, y: 315}, {c: 'L', x: 31, y: 48}],
+        [{c: 'M', x: 78, y: 35}],
     ])
     t.deepEquals(subPathPrep('m10 315 78 35'), [
-        [{command: 'M', x: 10, y: 315}],
-        [{command: 'M', x: 88, y: 350}],
+        [{c: 'M', x: 10, y: 315}],
+        [{c: 'M', x: 88, y: 350}],
     ])
     t.end()
 })
 
 test('getSubPaths: split path to subpathes by Z command', (t) => {
     t.deepEquals(subPathPrep('M10 315 Z'), [
-        [{command: 'M', x: 10, y: 315}, {command: 'Z'}],
+        [{c: 'M', x: 10, y: 315}, {c: 'Z'}],
     ])
     t.deepEquals(subPathPrep('M10 315 Z Z'), [
-        [{command: 'M', x: 10, y: 315}, {command: 'Z'}],
-        [{command: 'Z'}],
+        [{c: 'M', x: 10, y: 315}, {c: 'Z'}],
+        [{c: 'Z'}],
     ])
     t.deepEquals(subPathPrep('M10 315 M 30 15 Z'), [
-        [{command: 'M', x: 10, y: 315}],
-        [{command: 'M', x: 30, y: 15}, {command: 'Z'}],
+        [{c: 'M', x: 10, y: 315}],
+        [{c: 'M', x: 30, y: 15}, {c: 'Z'}],
     ])
     t.end()
 })

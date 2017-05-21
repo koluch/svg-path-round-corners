@@ -100,10 +100,10 @@ const parseMove = (string, i, relative = false): [TCommand[], number] => {
     const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
-            commands.push({command: 'm', dx: argGroups[i][0], dy: argGroups[i][1]})
+            commands.push({c: 'm', dx: argGroups[i][0], dy: argGroups[i][1]})
         }
         else {
-            commands.push({command: 'M', x: argGroups[i][0], y: argGroups[i][1]})
+            commands.push({c: 'M', x: argGroups[i][0], y: argGroups[i][1]})
         }
     }
     return [commands, nextI]
@@ -111,7 +111,7 @@ const parseMove = (string, i, relative = false): [TCommand[], number] => {
 
 const parseClose = (string, i, relative = false): [TCommand[], number] => {
     const [_, nextI] = parseArgumentsGeneral(string, i, 0)
-    return [[relative ? {command: 'z'} : {command: 'Z'}], nextI]
+    return [[relative ? {c: 'z'} : {c: 'Z'}], nextI]
 }
 
 const parseLine = (string, i, relative = false): [TCommand[], number] => {
@@ -119,10 +119,10 @@ const parseLine = (string, i, relative = false): [TCommand[], number] => {
     const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
-            commands.push({command: 'l', dx: argGroups[i][0], dy: argGroups[i][1]})
+            commands.push({c: 'l', dx: argGroups[i][0], dy: argGroups[i][1]})
         }
         else {
-            commands.push({command: 'L', x: argGroups[i][0], y: argGroups[i][1]})
+            commands.push({c: 'L', x: argGroups[i][0], y: argGroups[i][1]})
         }
     }
     return [commands, nextI]
@@ -133,10 +133,10 @@ const parseHorizontal = (string, i, relative = false): [TCommand[], number] => {
     const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
-            commands.push({command: 'h', dx: argGroups[i][0]})
+            commands.push({c: 'h', dx: argGroups[i][0]})
         }
         else {
-            commands.push({command: 'H', x: argGroups[i][0]})
+            commands.push({c: 'H', x: argGroups[i][0]})
         }
     }
     return [commands, nextI]
@@ -147,10 +147,10 @@ const parseVertical = (string, i, relative = false): [TCommand[], number] => {
     const commands: TCommand[] = []
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
-            commands.push({command: 'v', dy: argGroups[i][0]})
+            commands.push({c: 'v', dy: argGroups[i][0]})
         }
         else {
-            commands.push({command: 'V', y: argGroups[i][0]})
+            commands.push({c: 'V', y: argGroups[i][0]})
         }
     }
     return [commands, nextI]
@@ -162,7 +162,7 @@ const parseCurve = (string, i, relative = false): [TCommand[], number] => {
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
-                command: 'c',
+                c: 'c',
                 dx1: argGroups[i][0],
                 dy1: argGroups[i][1],
                 dx2: argGroups[i][2],
@@ -173,7 +173,7 @@ const parseCurve = (string, i, relative = false): [TCommand[], number] => {
         }
         else {
             commands.push({
-                command: 'C',
+                c: 'C',
                 x1: argGroups[i][0],
                 y1: argGroups[i][1],
                 x2: argGroups[i][2],
@@ -192,7 +192,7 @@ const parseShortCurve = (string, i, relative = false): [TCommand[], number] => {
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
-                command: 's',
+                c: 's',
                 dx2: argGroups[i][0],
                 dy2: argGroups[i][1],
                 dx: argGroups[i][2],
@@ -201,7 +201,7 @@ const parseShortCurve = (string, i, relative = false): [TCommand[], number] => {
         }
         else {
             commands.push({
-                command: 'S',
+                c: 'S',
                 x2: argGroups[i][0],
                 y2: argGroups[i][1],
                 x: argGroups[i][2],
@@ -218,7 +218,7 @@ const parseQuadCurve = (string, i, relative = false): [TCommand[], number] => {
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
-                command: 'q',
+                c: 'q',
                 dx1: argGroups[i][0],
                 dy1: argGroups[i][1],
                 dx: argGroups[i][2],
@@ -227,7 +227,7 @@ const parseQuadCurve = (string, i, relative = false): [TCommand[], number] => {
         }
         else {
             commands.push({
-                command: 'Q',
+                c: 'Q',
                 x1: argGroups[i][0],
                 y1: argGroups[i][1],
                 x: argGroups[i][2],
@@ -244,14 +244,14 @@ const parseShortQuadCurve = (string, i, relative = false): [TCommand[], number] 
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
-                command: 't',
+                c: 't',
                 dx: argGroups[i][0],
                 dy: argGroups[i][1],
             })
         }
         else {
             commands.push({
-                command: 'T',
+                c: 'T',
                 x: argGroups[i][0],
                 y: argGroups[i][1],
             })
@@ -266,7 +266,7 @@ const parseArc = (string, i, relative = false): [TCommand[], number] => {
     for (let i = 0; i < argGroups.length; ++i) {
         if (relative) {
             commands.push({
-                command: 'a',
+                c: 'a',
                 rx: argGroups[i][0],
                 ry: argGroups[i][1],
                 xAxisRotation: argGroups[i][2],
@@ -278,7 +278,7 @@ const parseArc = (string, i, relative = false): [TCommand[], number] => {
         }
         else {
             commands.push({
-                command: 'A',
+                c: 'A',
                 rx: argGroups[i][0],
                 ry: argGroups[i][1],
                 xAxisRotation: argGroups[i][2],
@@ -316,7 +316,7 @@ export const parseNextCommand = (string: string, i: number) => {
         case 't': return parseShortQuadCurve(string, commandStartI, true)
         case 'A': return parseArc(string, commandStartI)
         case 'a': return parseArc(string, commandStartI, true)
-        default: throw error(`Unknown command: ${ch}`, string, i)
+        default: throw error(`Unknown c: ${ch}`, string, i)
     }
 }
 

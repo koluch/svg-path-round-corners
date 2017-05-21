@@ -7,7 +7,7 @@ const formatArguments = (args: number[]): string => {
 }
 
 const getArgumentsList = (c: TCommand): number[] => {
-    switch (c.command) {
+    switch (c.c) {
         case 'M': return [c.x, c.y]
         case 'm': return [c.dx, c.dy]
         case 'Z': return []
@@ -28,7 +28,7 @@ const getArgumentsList = (c: TCommand): number[] => {
         case 't': return [c.dx, c.dy]
         case 'A': return [c.rx, c.ry, c.xAxisRotation, c.largeArcFlag, c.sweepFlag, c.x, c.y]
         case 'a': return [c.rx, c.ry, c.xAxisRotation, c.largeArcFlag, c.sweepFlag, c.dx, c.dy]
-        default: throw new Error(`Wrong command: ${c.command}`)
+        default: throw new Error(`Wrong c: ${c.c}`)
     }
 }
 
@@ -36,9 +36,9 @@ export const serialize = (d: TData): string => {
     let result = ''
     for (let i = 0; i < d.length; i++) {
         const command = d[i]
-        result += command.command
+        result += command.c
         const commandGroup = [command]
-        while (i < (d.length - 1) && d[i + 1].command === command.command) {
+        while (i < (d.length - 1) && d[i + 1].c === command.c) {
             commandGroup.push(d[i + 1])
             i++
         }

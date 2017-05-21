@@ -57,8 +57,8 @@ export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
 
     // First command should always be an 'M' command
     const mCommand = subpath[0]
-    if (mCommand.command !== 'M') {
-        throw new Error(`Wrong sub-path data, first command should always by an 'M' command, not "${mCommand.command}"`)
+    if (mCommand.c !== 'M') {
+        throw new Error(`Wrong sub-path data, first command should always by an 'M' command, not "${mCommand.c}"`)
     }
 
     let begin = applyCommand({x: 0, y: 0}, {x: 0, y: 0}, mCommand)
@@ -74,8 +74,8 @@ export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
         // const command3 = subpath[(i + 2) % subpath.length]
         const isLastCommand = i === subpath.length - 1
 
-        const isCorner = (command1.command === 'L' || command1.command === 'Z')
-                      && (command2.command === 'L' || command2.command === 'Z')
+        const isCorner = (command1.c === 'L' || command1.c === 'Z')
+                      && (command2.c === 'L' || command2.c === 'Z')
 
         if (!isCorner) {
             result.push(command1)
@@ -88,17 +88,17 @@ export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
             let p2 = null
             let p3 = null
 
-            if (command1.command === 'L') {
+            if (command1.c === 'L') {
                 p2 = {x: command1.x, y: command1.y}
             }
-            else if (command1.command === 'Z') {
+            else if (command1.c === 'Z') {
                 p2 = begin
             }
 
-            if (command2.command === 'L') {
+            if (command2.c === 'L') {
                 p3 = {x: command2.x, y: command2.y}
             }
-            else if (command2.command === 'Z' || command2.command === 'z') {
+            else if (command2.c === 'Z' || command2.c === 'z') {
                 p3 = begin
             }
 
@@ -108,9 +108,9 @@ export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
             }
 
             const [q1, q2] = makeBezierPoints(p1, p2, p3, radius)
-            result.push({command: 'L', x: q1.x, y: q1.y})
+            result.push({c: 'L', x: q1.x, y: q1.y})
             result.push({
-                command: 'Q',
+                c: 'Q',
                 x1: p2.x,
                 y1: p2.y,
                 x: q2.x,
@@ -124,11 +124,10 @@ export const roundSubPath = (subpath: TSubPath, radius: number): TSubPath => {
         position = applyCommand(position, begin, command1)
     }
 
-    return [{command: 'M', x: begin.x, y: begin.y}].concat(result)
+    return [{c: 'M', x: begin.x, y: begin.y}].concat(result)
 }
 
 export const roundCorners = (d: TData, radius: number = 0): TAbsoluteData => {
-
     const absD = makeDataAbsolute(d)
     const subPaths = getSubPaths(absD)
 

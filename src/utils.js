@@ -2,35 +2,35 @@
 import type {TData, TPoint, TCommand, TRelativeCommand, TRelativeData, TAbsoluteData, TAbsoluteCommand, TSubPath} from './types'
 
 export const makeCommandRelative = (p: TPoint, c: TCommand): TRelativeCommand => {
-    switch (c.command) {
-        case 'M': return {command: 'm', dx: c.x - p.x, dy: c.y - p.y}
-        case 'Z': return {command: 'z'}
-        case 'L': return {command: 'l', dx: c.x - p.x, dy: c.y - p.y}
-        case 'H': return {command: 'h', dx: c.x - p.x}
-        case 'V': return {command: 'v', dy: c.y - p.y}
-        case 'C': return {command: 'c', dx1: c.x1 - p.x, dy1: c.y1 - p.y, dx2: c.x2 - p.x, dy2: c.y2 - p.y, dx: c.x - p.x, dy: c.y - p.y}
-        case 'S': return {command: 's', dx2: c.x2 - p.x, dy2: c.y2 - p.y, dx: c.x - p.x, dy: c.y - p.y}
-        case 'Q': return {command: 'q', dx1: c.x1 - p.x, dy1: c.y1 - p.y, dx: c.x - p.x, dy: c.y - p.y}
-        case 'T': return {command: 't', dx: c.x - p.x, dy: c.y - p.y}
-        case 'A': return {command: 'a', rx: c.rx, ry: c.ry, xAxisRotation: c.xAxisRotation, largeArcFlag: c.largeArcFlag, sweepFlag: c.sweepFlag, dx: c.x - p.x, dy: c.y - p.y}
+    switch (c.c) {
+        case 'M': return {c: 'm', dx: c.x - p.x, dy: c.y - p.y}
+        case 'Z': return {c: 'z'}
+        case 'L': return {c: 'l', dx: c.x - p.x, dy: c.y - p.y}
+        case 'H': return {c: 'h', dx: c.x - p.x}
+        case 'V': return {c: 'v', dy: c.y - p.y}
+        case 'C': return {c: 'c', dx1: c.x1 - p.x, dy1: c.y1 - p.y, dx2: c.x2 - p.x, dy2: c.y2 - p.y, dx: c.x - p.x, dy: c.y - p.y}
+        case 'S': return {c: 's', dx2: c.x2 - p.x, dy2: c.y2 - p.y, dx: c.x - p.x, dy: c.y - p.y}
+        case 'Q': return {c: 'q', dx1: c.x1 - p.x, dy1: c.y1 - p.y, dx: c.x - p.x, dy: c.y - p.y}
+        case 'T': return {c: 't', dx: c.x - p.x, dy: c.y - p.y}
+        case 'A': return {c: 'a', rx: c.rx, ry: c.ry, xAxisRotation: c.xAxisRotation, largeArcFlag: c.largeArcFlag, sweepFlag: c.sweepFlag, dx: c.x - p.x, dy: c.y - p.y}
         default: return c
     }
 }
 
 export const makeCommandAbsolute = (p: TPoint, c: TCommand): TAbsoluteCommand => {
-    switch (c.command) {
-        case 'm': return {command: 'M', x: p.x + c.dx, y: p.y + c.dy}
-        case 'z': return {command: 'Z'}
-        case 'l': return {command: 'L', x: p.x + c.dx, y: p.y + c.dy}
-        case 'h': return {command: 'L', x: p.x + c.dx, y: p.y}
-        case 'v': return {command: 'L', y: p.y + c.dy, x: p.x}
-        case 'H': return {command: 'L', x: c.x, y: p.y}
-        case 'V': return {command: 'L', y: c.y, x: p.x}
-        case 'c': return {command: 'C', x1: p.x + c.dx1, y1: p.y + c.dy1, x2: p.x + c.dx2, y2: p.y + c.dy2, x: p.x + c.dx, y: p.y + c.dy}
-        case 's': return {command: 'S', x2: p.x + c.dx2, y2: p.y + c.dy2, x: p.x + c.dx, y: p.y + c.dy}
-        case 'q': return {command: 'Q', x1: p.x + c.dx1, y1: p.y + c.dy1, x: p.x + c.dx, y: p.y + c.dy}
-        case 't': return {command: 'T', x: p.x + c.dx, y: p.y + c.dy}
-        case 'a': return {command: 'A', rx: c.rx, ry: c.ry, xAxisRotation: c.xAxisRotation, largeArcFlag: c.largeArcFlag, sweepFlag: c.sweepFlag, x: p.x + c.dx, y: p.y + c.dy}
+    switch (c.c) {
+        case 'm': return {c: 'M', x: p.x + c.dx, y: p.y + c.dy}
+        case 'z': return {c: 'Z'}
+        case 'l': return {c: 'L', x: p.x + c.dx, y: p.y + c.dy}
+        case 'h': return {c: 'L', x: p.x + c.dx, y: p.y}
+        case 'v': return {c: 'L', y: p.y + c.dy, x: p.x}
+        case 'H': return {c: 'L', x: c.x, y: p.y}
+        case 'V': return {c: 'L', y: c.y, x: p.x}
+        case 'c': return {c: 'C', x1: p.x + c.dx1, y1: p.y + c.dy1, x2: p.x + c.dx2, y2: p.y + c.dy2, x: p.x + c.dx, y: p.y + c.dy}
+        case 's': return {c: 'S', x2: p.x + c.dx2, y2: p.y + c.dy2, x: p.x + c.dx, y: p.y + c.dy}
+        case 'q': return {c: 'Q', x1: p.x + c.dx1, y1: p.y + c.dy1, x: p.x + c.dx, y: p.y + c.dy}
+        case 't': return {c: 'T', x: p.x + c.dx, y: p.y + c.dy}
+        case 'a': return {c: 'A', rx: c.rx, ry: c.ry, xAxisRotation: c.xAxisRotation, largeArcFlag: c.largeArcFlag, sweepFlag: c.sweepFlag, x: p.x + c.dx, y: p.y + c.dy}
         default: return c
     }
 }
@@ -38,20 +38,20 @@ export const makeCommandAbsolute = (p: TPoint, c: TCommand): TAbsoluteCommand =>
 export const applyCommand = (position: TPoint, begin: TPoint, c: TCommand): TPoint => {
     let dif: {+dx: number, +dy: number} = {dx: 0, dy: 0}
 
-    if (c.command === 'm') dif = c
-    else if (c.command === 'l') dif = c
-    else if (c.command === 'c') dif = c
-    else if (c.command === 's') dif = c
-    else if (c.command === 'q') dif = c
-    else if (c.command === 't') dif = c
-    else if (c.command === 'a') dif = c
-    else if (c.command === 'h') dif = {dx: c.dx, dy: 0}
-    else if (c.command === 'v') dif = {dx: 0, dy: c.dy}
-    else if (c.command === 'z') dif = {dx: begin.x - position.x, dy: begin.y - position.y}
+    if (c.c === 'm') dif = c
+    else if (c.c === 'l') dif = c
+    else if (c.c === 'c') dif = c
+    else if (c.c === 's') dif = c
+    else if (c.c === 'q') dif = c
+    else if (c.c === 't') dif = c
+    else if (c.c === 'a') dif = c
+    else if (c.c === 'h') dif = {dx: c.dx, dy: 0}
+    else if (c.c === 'v') dif = {dx: 0, dy: c.dy}
+    else if (c.c === 'z') dif = {dx: begin.x - position.x, dy: begin.y - position.y}
 
-    else if (c.command === 'V') return {x: position.x, y: c.y}
-    else if (c.command === 'H') return {x: c.x, y: position.y}
-    else if (c.command === 'Z') return begin
+    else if (c.c === 'V') return {x: position.x, y: c.y}
+    else if (c.c === 'H') return {x: c.x, y: position.y}
+    else if (c.c === 'Z') return begin
     else {
         return c
     }
@@ -83,10 +83,10 @@ export const makeDataAbsolute = (d: TData): TAbsoluteData => {
         result.push(relativeCommand)
         position = applyCommand(position, begin, relativeCommand)
 
-        if (command.command === 'M') {
+        if (command.c === 'M') {
             begin = command
         }
-        else if (command.command === 'm') {
+        else if (command.c === 'm') {
             begin = applyCommand(position, begin, relativeCommand)
         }
     }
@@ -97,22 +97,22 @@ export const getSubPaths = (d: TAbsoluteData): Array<TSubPath> => {
     if (d.length === 0) {
         return []
     }
-    else if (d[0].command !== 'M' && d[0].command !== 'm') {
-        throw new Error(`Path must start with an "M" or "m" command, not "${d[0].command}" `)
+    else if (d[0].c !== 'M' && d[0].c !== 'm') {
+        throw new Error(`Path must start with an "M" or "m" command, not "${d[0].c}" `)
     }
 
     const result = []
     let nextSubPath = []
-    let lastM = {command: 'M', x: 0, y: 0}
+    let lastM = {c: 'M', x: 0, y: 0}
     d.forEach((command) => {
-        if (command.command === 'M') {
+        if (command.c === 'M') {
             if (nextSubPath.length > 0) {
                 result.push(nextSubPath)
             }
             nextSubPath = [command]
             lastM = command
         }
-        else if (command.command === 'Z') {
+        else if (command.c === 'Z') {
             nextSubPath.push(command)
             result.push(nextSubPath)
             nextSubPath = []
@@ -136,7 +136,7 @@ export const isSubPathClosed = (begin: TPoint, d: TSubPath): boolean => {
         return true
     }
     const lastCommand = d[d.length - 1]
-    if (lastCommand.command === 'Z') {
+    if (lastCommand.c === 'Z') {
         return true
     }
     return lastCommand.x === begin.x && lastCommand.y === begin.y
