@@ -2,46 +2,8 @@
 import test from 'tape'
 import {parse} from '../src/parse'
 import {serialize} from '../src/serialize'
-import {getSubPaths, makeDataRelative, makeDataAbsolute, makeCommandRelative, isSubPathClosed} from '../src/utils'
+import {getSubPaths, makeDataAbsolute, isSubPathClosed} from '../src/utils'
 import type {TAbsoluteData} from '../src/types'
-
-test('applyRelativeCommand: make relative command, which is already relative', (t) => {
-    t.deepEquals(makeCommandRelative({x: 30, y: 40}, {c: 'l', dx: 50, dy: 100}), {c: 'l', dx: 50, dy: 100})
-    t.end()
-})
-
-test('applyRelativeCommand: make relative line commands', (t) => {
-    t.deepEquals(makeCommandRelative({x: 0, y: 0}, {c: 'L', x: 100, y: 0}), {c: 'l', dx: 100, dy: 0})
-    t.deepEquals(makeCommandRelative({x: 100, y: 0}, {c: 'L', x: 100, y: 100}), {c: 'l', dx: 0, dy: 100})
-    t.deepEquals(makeCommandRelative({x: 100, y: 100}, {c: 'L', x: 0, y: 100}), {c: 'l', dx: -100, dy: 0})
-    t.end()
-})
-
-test('makeDataRelative: making empty data relative should return empty data', (t) => {
-    t.deepEquals(serialize(makeDataRelative(parse(''))), '')
-    t.end()
-})
-
-test('makeDataRelative: making relative the data which is already relative should do nothing', (t) => {
-    t.deepEquals(serialize(makeDataRelative(parse('l0 0'))), 'l0 0')
-    t.deepEquals(serialize(makeDataRelative(parse('m50 372l42 53 58 92z'))), 'm50 372l42 53 58 92z')
-    t.end()
-})
-
-test('makeDataRelative: should properly make relative series of absolute commands', (t) => {
-    t.deepEquals(serialize(makeDataRelative(parse('L0 0'))), 'l0 0')
-    t.deepEquals(serialize(makeDataRelative(parse('M0 0 L 100 0 L 100 100 L 0 100 Z'))), 'm0 0l100 0 0 100-100 0z')
-    t.end()
-})
-
-test('makeDataRelative: multi-segments data', (t) => {
-    t.deepEquals(
-        serialize(makeDataRelative(parse('M0 0 L 100 0 L 100 100 Z M 200 200 L 300 200 L 300 300 Z'))),
-        'm0 0l100 0 0 100zm200 200l100 0 0 100z'
-    )
-    t.end()
-})
-
 
 test('makeDataAbsolute: making empty data relative should return empty data', (t) => {
     t.deepEquals(serialize(makeDataAbsolute(parse(''))), '')

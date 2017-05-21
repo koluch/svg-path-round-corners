@@ -1,21 +1,6 @@
 // @flow
-import type {TData, TPoint, TCommand, TRelativeCommand, TRelativeData, TAbsoluteData, TAbsoluteCommand, TSubPath} from './types'
+import type {TData, TPoint, TCommand, TAbsoluteData, TAbsoluteCommand, TSubPath} from './types'
 
-export const makeCommandRelative = (p: TPoint, c: TCommand): TRelativeCommand => {
-    switch (c.c) {
-        case 'M': return {c: 'm', dx: c.x - p.x, dy: c.y - p.y}
-        case 'Z': return {c: 'z'}
-        case 'L': return {c: 'l', dx: c.x - p.x, dy: c.y - p.y}
-        case 'H': return {c: 'h', dx: c.x - p.x}
-        case 'V': return {c: 'v', dy: c.y - p.y}
-        case 'C': return {c: 'c', dx1: c.x1 - p.x, dy1: c.y1 - p.y, dx2: c.x2 - p.x, dy2: c.y2 - p.y, dx: c.x - p.x, dy: c.y - p.y}
-        case 'S': return {c: 's', dx2: c.x2 - p.x, dy2: c.y2 - p.y, dx: c.x - p.x, dy: c.y - p.y}
-        case 'Q': return {c: 'q', dx1: c.x1 - p.x, dy1: c.y1 - p.y, dx: c.x - p.x, dy: c.y - p.y}
-        case 'T': return {c: 't', dx: c.x - p.x, dy: c.y - p.y}
-        case 'A': return {c: 'a', rx: c.rx, ry: c.ry, xAxisRotation: c.xAxisRotation, largeArcFlag: c.largeArcFlag, sweepFlag: c.sweepFlag, dx: c.x - p.x, dy: c.y - p.y}
-        default: return c
-    }
-}
 
 export const makeCommandAbsolute = (p: TPoint, c: TCommand): TAbsoluteCommand => {
     switch (c.c) {
@@ -59,19 +44,6 @@ export const applyCommand = (position: TPoint, begin: TPoint, c: TCommand): TPoi
     return {x: position.x + dif.dx, y: position.y + dif.dy}
 }
 
-
-export const makeDataRelative = (d: TData): TRelativeData => {
-    const begin = {x: 0, y: 0}
-    let position = {x: 0, y: 0}
-    const result = []
-    for (let i = 0; i < d.length; i++) {
-        const command = d[i]
-        const relativeCommand = makeCommandRelative(position, command)
-        result.push(relativeCommand)
-        position = applyCommand(position, begin, relativeCommand)
-    }
-    return result
-}
 
 export const makeDataAbsolute = (d: TData): TAbsoluteData => {
     let begin = {x: 0, y: 0}
