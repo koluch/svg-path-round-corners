@@ -1,7 +1,6 @@
 // @flow
 import type {TData, TPoint, TCommand, TAbsoluteData, TAbsoluteCommand, TSubPath} from './types'
 
-
 export const makeCommandAbsolute = (p: TPoint, c: TCommand): TAbsoluteCommand => {
     switch (c.c) {
         case 'm': return {c: 'M', x: p.x + c.dx, y: p.y + c.dy}
@@ -42,27 +41,6 @@ export const applyCommand = (position: TPoint, begin: TPoint, c: TCommand): TPoi
     }
 
     return {x: position.x + dif.dx, y: position.y + dif.dy}
-}
-
-
-export const makeDataAbsolute = (d: TData): TAbsoluteData => {
-    let begin = {x: 0, y: 0}
-    let position = {x: 0, y: 0}
-    const result = []
-    for (let i = 0; i < d.length; i++) {
-        const command = d[i]
-        const absoluteCommand = makeCommandAbsolute(position, command)
-        result.push(absoluteCommand)
-        position = applyCommand(position, begin, absoluteCommand)
-
-        if (command.c === 'M') {
-            begin = command
-        }
-        else if (command.c === 'm') {
-            begin = applyCommand(position, begin, absoluteCommand)
-        }
-    }
-    return result
 }
 
 export const normalizeData = (d: TData): TAbsoluteData => {

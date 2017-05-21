@@ -1,7 +1,7 @@
 // @flow
 import type {TSubPath, TData, TAbsoluteData, TPoint} from './types'
 
-import {applyCommand, normalizeData, getSubPaths, isSubPathClosed, makeDataAbsolute, pointEquals} from './utils'
+import {applyCommand, normalizeData, getSubPaths, isSubPathClosed, pointEquals} from './utils'
 
 // Function for scaling vectors, keeping it's origin coordinates
 const scaleVector = (p1: TPoint, p2: TPoint, factor: number): TPoint => {
