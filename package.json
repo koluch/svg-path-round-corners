@@ -5,10 +5,10 @@
   "main": "dist/es5/index.js",
   "module": "dist/es6/index.js",
   "scripts": {
-    "build-es5": "babel src -d dist/es5 --presets=es2015 --plugins=transform-flow-strip-types,transform-object-rest-spread",
-    "build-es6": "babel src -d dist/es6 --plugins=transform-flow-strip-types,transform-object-rest-spread",
+    "build-es5": "babel src -d dist/es5",
+    "build-es6": "babel src -d dist/es6 --no-babelrc --plugins=transform-flow-strip-types,transform-object-rest-spread",
     "build": "npm run build-es5 && npm run build-es6",
-    "test": "flow check && babel-tape-runner test/**/*.js | tap-spec"
+    "test": "npm run build && flow check && babel-tape-runner --presets=es2015 --plugins=transform-flow-strip-types,transform-object-rest-spread test/**/*.js | tap-spec"
   },
   "keywords": [
     "javascript",

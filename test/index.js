@@ -1,9 +1,9 @@
 // @flow
 import test from 'tape'
-import {parse,} from '../src/parse'
-import {serialize} from '../src/serialize'
-import {roundCorners} from '../src/index'
-import {getSubPaths} from '../src/utils'
+import {parse} from '../dist/es5/parse'
+import {serialize} from '../dist/es5/serialize'
+import {roundCorners} from '../dist/es5/index'
+import {getSubPaths} from '../dist/es5/utils'
 
 //todo: test new lines
 test('round corners should do nothing when there are no double lines', (t) => {

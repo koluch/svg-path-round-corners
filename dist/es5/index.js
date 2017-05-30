@@ -11,8 +11,6 @@ var _utils = require('./utils');
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
 // Function for scaling vectors, keeping it's origin coordinates
 var scaleVector = function scaleVector(p1, p2, factor) {
     var x1 = p1.x,
@@ -148,7 +146,7 @@ var roundSubPath = exports.roundSubPath = function roundSubPath(subpath, radius)
     return [{ c: 'M', x: begin.x, y: begin.y }].concat(result);
 };
 
-var roundCorners = function roundCorners(d) {
+var roundCorners = exports.roundCorners = function roundCorners(d) {
     var _ref;
 
     var radius = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -160,10 +158,5 @@ var roundCorners = function roundCorners(d) {
         return roundSubPath(subPath, radius);
     });
 
-    var _a = { a: 12 },
-        a = _a.a,
-        rest = _objectWithoutProperties(_a, ['a']);
-
     return (_ref = []).concat.apply(_ref, _toConsumableArray(roundedSubPaths));
 };
-exports.roundCorners = roundCorners;

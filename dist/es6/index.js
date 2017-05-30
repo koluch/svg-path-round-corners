@@ -1,4 +1,4 @@
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 
 import { applyCommand, normalizeData, getSubPaths, isSubPathClosed, pointEquals } from './utils';
 
@@ -123,16 +123,11 @@ export const roundSubPath = (subpath, radius) => {
     return [{ c: 'M', x: begin.x, y: begin.y }].concat(result);
 };
 
-const roundCorners = (d, radius = 0) => {
+export const roundCorners = (d, radius = 0) => {
     const absD = normalizeData(d);
     const subPaths = getSubPaths(absD);
 
     const roundedSubPaths = subPaths.map(subPath => roundSubPath(subPath, radius));
 
-    const _a = { a: 12 },
-          { a } = _a,
-          rest = _objectWithoutProperties(_a, ['a']);
-
     return [].concat(...roundedSubPaths);
 };
-export { roundCorners };
