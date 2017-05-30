@@ -2,9 +2,12 @@
     "name": "svg-path-round-corners",
     "version": "0.1.0",
     "description": "JS module to make round corners in any arbitrary path",
-    "main": "index.js",
+    "main": "dist/es5/index.js",
+    "module": "dist/es6/index.js",
     "scripts": {
-        "build": "babel src -d lib",
+        "build-es5": "babel src -d dist/es5 --presets=es2015 --plugins=transform-flow-strip-types,transform-object-rest-spread",
+        "build-es6": "babel src -d dist/es6 --plugins=transform-flow-strip-types,transform-object-rest-spread",
+        "build": "npm run build-es5 && npm run build-es6",
         "test": "flow check && babel-tape-runner test/**/*.js | tap-spec"
     },
     "keywords": [
