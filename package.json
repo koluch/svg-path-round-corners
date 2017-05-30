@@ -27,6 +27,7 @@
     "eslint": "^3.19.0",
     "eslint-plugin-flowtype": "^2.30.4",
     "flow": "^0.2.3",
+    "flow-bin": "^0.47.0",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.3"
   }
