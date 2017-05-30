@@ -7,7 +7,7 @@
   "scripts": {
     "build-es5": "babel src -d dist/es5",
     "build-es6": "babel src -d dist/es6 --no-babelrc --plugins=transform-flow-strip-types,transform-object-rest-spread",
-    "build": "npm run build-es5 && npm run build-es6",
+    "build": "del-cli ./dist && npm run build-es5 && npm run build-es6",
     "test": "npm run build && flow check && babel-tape-runner --presets=es2015 --plugins=transform-flow-strip-types,transform-object-rest-spread test/**/*.js | tap-spec"
   },
   "keywords": [
@@ -24,6 +24,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-tape-runner": "^2.0.1",
+    "del-cli": "^1.0.0",
     "eslint": "^3.19.0",
     "eslint-plugin-flowtype": "^2.30.4",
     "flow": "^0.2.3",
