@@ -20,14 +20,15 @@ const scaleVector = (p1, p2, factor) => {
 
 const makeBezierPoints = (p1, p2, p3, radius) => {
     // Angle between lines
-    const { PI, abs, sqrt, pow, acos, tan } = Math;
+    const { PI, sqrt, pow, acos, tan, min, max } = Math;
     const { x: x1, y: y1 } = p1;
     const { x: x2, y: y2 } = p2;
     const { x: x3, y: y3 } = p3;
-    const a = sqrt(pow(abs(x2 - x1), 2) + pow(abs(y2 - y1), 2));
-    const b = sqrt(pow(abs(x3 - x2), 2) + pow(abs(y3 - y2), 2));
-    const c = sqrt(pow(abs(x3 - x1), 2) + pow(abs(y3 - y1), 2));
-    const angle = acos((pow(a, 2) + (pow(b, 2) - pow(c, 2))) / (2 * a * b)); // cos theoreme
+    const a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+    const b = sqrt(pow(x3 - x2, 2) + pow(y3 - y2, 2));
+    const c = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2));
+    const cosC = (pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b); // cos theorem's
+    const angle = acos(min(max(-1, cosC), 1)); // clamp acos parameter to [-1, 1]
 
     // Angle between any side and line from circle center to angle vertex
     const angle2 = PI / 2 - angle / 2;

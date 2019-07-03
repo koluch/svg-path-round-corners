@@ -32,11 +32,12 @@ var scaleVector = function scaleVector(p1, p2, factor) {
 var makeBezierPoints = function makeBezierPoints(p1, p2, p3, radius) {
     // Angle between lines
     var PI = Math.PI,
-        abs = Math.abs,
         sqrt = Math.sqrt,
         pow = Math.pow,
         acos = Math.acos,
-        tan = Math.tan;
+        tan = Math.tan,
+        min = Math.min,
+        max = Math.max;
     var x1 = p1.x,
         y1 = p1.y;
     var x2 = p2.x,
@@ -44,10 +45,11 @@ var makeBezierPoints = function makeBezierPoints(p1, p2, p3, radius) {
     var x3 = p3.x,
         y3 = p3.y;
 
-    var a = sqrt(pow(abs(x2 - x1), 2) + pow(abs(y2 - y1), 2));
-    var b = sqrt(pow(abs(x3 - x2), 2) + pow(abs(y3 - y2), 2));
-    var c = sqrt(pow(abs(x3 - x1), 2) + pow(abs(y3 - y1), 2));
-    var angle = acos((pow(a, 2) + (pow(b, 2) - pow(c, 2))) / (2 * a * b)); // cos theoreme
+    var a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+    var b = sqrt(pow(x3 - x2, 2) + pow(y3 - y2, 2));
+    var c = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2));
+    var cosC = (pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b); // cos theorem's
+    var angle = acos(min(max(-1, cosC), 1)); // clamp acos parameter to [-1, 1]
 
     // Angle between any side and line from circle center to angle vertex
     var angle2 = PI / 2 - angle / 2;
